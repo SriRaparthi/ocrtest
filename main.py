@@ -6,14 +6,6 @@ import mysql.connector
 from flask import Flask, request
 
 
-configsource = cfg.dbconn
-cnx = mysql.connector.connect(**configsource)
-mycursor = cnx.cursor()
-if(cnx):
-    print("connected to mysql database")
-else:
-    print("OCR server unable to connect to DB")
-
 indent.msg2 = None
 indent.ktp_msg = None
 indent.selfie_msg = None
@@ -41,6 +33,15 @@ def main():
     file_type = content[0]["type"]
     ap_temp_id = content[0]["tempId"]
     #PATH_TO_IMAGE,PATH_TO_SELFIE_IMAGE --> previous parameters
+    # CONNECT TO DB
+    configsource = cfg.dbconn
+    cnx = mysql.connector.connect(**configsource)
+    mycursor = cnx.cursor()
+    if(cnx):
+        print("connected to mysql database")
+    else:
+        print("OCR server unable to connect to DB")
+
     if file_type == 'ktp':
         PATH_TO_IMAGE = file_path
         image,PATH_TO_IMAGE,indent.msg2 = indent.getimage(PATH_TO_IMAGE)
@@ -89,12 +90,16 @@ def main():
                 cnx.commit()
                 print("Inserted into database")
             
+            #Closing the connection
+            cnx.close()
             response_json = {'result':ktpresult, 'ocr_error': ocr_error}
             return retjson(response_json)
         
         except Exception as e:
             cnx.rollback()
             print("Exception caught Reverting SQL changes")
+            #Closing the connection
+            cnx.close()
             ktpresult = "FAIL"
             print(e)
             response_json = {'result':ktpresult, 'ocr_error': str(e) }
@@ -155,6 +160,8 @@ def main():
             # indent.ktptextextract(cropped_img)
             #add columns
             
+            #Closing the connection
+            cnx.close()
             response_json = {'result':selfieresult, 'ocr_error': ocr_error}
             return retjson(response_json)
     
@@ -163,6 +170,8 @@ def main():
             print("Exception caught Reverting SQL changes")
             selfieresult = "FAIL"
             print(e)
+            #Closing the connection
+            cnx.close()
             response_json = {'result':selfieresult, 'ocr_error': str(e) }
             return retjson(response_json)
 
