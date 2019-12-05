@@ -14,7 +14,7 @@ import warnings
 warnings.filterwarnings("ignore")
 from utils import label_map_util
 from utils import visualization_utils as vis_util
-from ktpocr.extractor import KTPOCR
+# from ktpocr.extractor import KTPOCR
 from flask import jsonify
 import argparse
 import ocrconfig as cfg
