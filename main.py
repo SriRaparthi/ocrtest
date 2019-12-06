@@ -44,7 +44,7 @@ def main():
 
     if file_type == 'ktp':
         PATH_TO_IMAGE = file_path
-        image,PATH_TO_IMAGE,indent.msg2 = indent.getimage(PATH_TO_IMAGE)
+        image,indent.msg2 = indent.getimage(PATH_TO_IMAGE)
         if indent.msg2 == 'KTP Image file does not exist':
             raise Exception(indent.msg2)
         #image read succesfully... and sending for processing
@@ -108,7 +108,7 @@ def main():
     elif file_type == 'selfie':
         try:
             PATH_TO_SELFIE_IMAGE = file_path
-            selfie_image,PATH_TO_SELFIE_IMAGE,indent.msg2 = indent.getselfie_img(PATH_TO_SELFIE_IMAGE)
+            selfie_image,indent.msg2 = indent.getselfie_img(PATH_TO_SELFIE_IMAGE)
             if indent.msg2 == 'Selfie Image file does not exist':
                 raise Exception(indent.msg2)
             selfiescore,selfieresult,indent.selfie_msg = indent.selfieimageproc(selfie_image)

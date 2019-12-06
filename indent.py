@@ -18,6 +18,9 @@ from utils import visualization_utils as vis_util
 from flask import jsonify
 import argparse
 import ocrconfig as cfg
+#for ssh image read
+import paramiko
+from paramiko.ssh_exception import BadHostKeyException, AuthenticationException, SSHException
 
 
 MODEL_NAME = 'model'
@@ -70,42 +73,111 @@ detection_classes = detection_graph.get_tensor_by_name('detection_classes:0')
 # Number of objects detected
 num_detections = detection_graph.get_tensor_by_name('num_detections:0')
 def getimage(PATH_TO_IMAGE):
+      # GET Image as np array from zeus server
+      #Raises BadHostKeyException,AuthenticationException,SSHException,socket error
       try:
-            if os.path.isfile(PATH_TO_IMAGE):
-                  image = plt.imread(PATH_TO_IMAGE)
-                  print('KTP Image Loaded')
-                  msg2 = 'KTP image loaded'
-                  return image,PATH_TO_IMAGE,msg2
-            else:
-                  print ("The file " + PATH_TO_IMAGE + " does not exist.")
-                  msg2 = 'Image file does not exist'
-                  return None,PATH_TO_IMAGE,msg2
-      except OSError as e:
-            print("Invalid image file!")
-            raise OSError("Invalid image file! :" + str(e))
+            s = paramiko.SSHClient()
+            s.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            s.connect("137.59.126.148",1122,username="koushik",password='QWERasdf!!',key_filename='id_rsa', timeout=5)
+            sftp = s.open_sftp()
+            # PATH_TO_IMAGE = '/home/uangteman/www/desktop/staging/assets/temp_ocr_files/KTP_2437630.jpeg'
+            with sftp.open(PATH_TO_IMAGE) as f:
+                  image = plt.imread(f, 0) #returns numpy array
+                  # print(type(image))
+                  if image is not None:
+                        print('KTP Image Loaded')
+                        msg2 = 'KTP image loaded'
+                        return image,msg2
+                  else:
+                        print ("The file does not exist on the server.")
+                        msg2 = 'Image file does not exist'
+                        return None,msg2
+      except BadHostKeyException as bh:
+            print("BHK Unable to read file : "+ str(bh))
+            raise(bh)
+      except SSHException as sh:
+            print("SSHException Unable to read file : "+ str(sh))
+            raise(sh)
+      except AuthenticationException as ae:
+            print("AuthenticationException Unable to read file : "+ str(ae))
+            raise(ae)
       except IOError as e:
             print("Invalid image file!")
             raise IOError("Invalid image file! :" + str(e))
       except e:
+            print("Unable to read file : "+ str(e))
             raise(e)
 
+      # try:
+      #       if os.path.isfile(PATH_TO_IMAGE):
+      #             image = plt.imread(PATH_TO_IMAGE)
+      #             print('KTP Image Loaded')
+      #             msg2 = 'KTP image loaded'
+      #             return image,PATH_TO_IMAGE,msg2
+      #       else:
+      #             print ("The file " + PATH_TO_IMAGE + " does not exist.")
+      #             msg2 = 'Image file does not exist'
+      #             return None,PATH_TO_IMAGE,msg2
+      # except OSError as e:
+      #       print("Invalid image file!")
+      #       raise OSError("Invalid image file! :" + str(e))
+      # except IOError as e:
+      #       print("Invalid image file!")
+      #       raise IOError("Invalid image file! :" + str(e))
+      # except e:
+      #       raise(e)
+
 def getselfie_img(PATH_TO_SELFIE_IMAGE):
+      # GET Selfie Image as np array from zeus server
+      #Raises BadHostKeyException,AuthenticationException,SSHException,socket error
       try:
-            if os.path.isfile(PATH_TO_SELFIE_IMAGE):
-                  selfie_img = plt.imread(PATH_TO_SELFIE_IMAGE)
-                  print('Selfie Image Loaded')
-                  msg2 = 'Selfie Image Loaded'
-            else:
-                  print ("The file " + PATH_TO_SELFIE_IMAGE + " does not exist.")
-                  msg2 = 'Image file does not exist'
-            return selfie_img,PATH_TO_SELFIE_IMAGE,msg2
-      except OSError as e:
-            print("Invalid image file!")
-            raise OSError("Invalid image file! :" + str(e))
+            s = paramiko.SSHClient()
+            s.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            s.connect("137.59.126.148",1122,username="koushik",password='QWERasdf!!',key_filename='id_rsa', timeout=5)
+            sftp = s.open_sftp()
+            # PATH_TO_SELFIE_IMAGE = '/home/uangteman/www/desktop/staging/assets/temp_ocr_files/Selfie_2437630.jpeg' 
+            with sftp.open(PATH_TO_SELFIE_IMAGE) as f:
+                  selfie_img = plt.imread(f, 0) #returns numpy array
+                  # print(type(selfie_img))
+                  if selfie_img is not None:
+                        print('Selfie Image Loaded')
+                        msg2 = 'Selfie Image Loaded'
+                        return selfie_img,msg2
+                  else:
+                        print ("The file does not exist on the server.")
+                        msg2 = 'Image file does not exist'
+                        return None,msg2
+      except BadHostKeyException as bh:
+            print("BHK Unable to read file : "+ str(bh))
+            raise(bh)
+      except SSHException as sh:
+            print("SSHException Unable to read file : "+ str(sh))
+            raise(sh)
+      except AuthenticationException as ae:
+            print("AuthenticationException Unable to read file : "+ str(ae))
+            raise(ae)
       except IOError as e:
             print("Invalid image file!")
             raise IOError("Invalid image file! :" + str(e))
-      
+      except e:
+            print("Unable to read file : "+ str(e))
+            raise(e)
+
+      # try:
+      #       if os.path.isfile(PATH_TO_SELFIE_IMAGE):
+      #             selfie_img = plt.imread(PATH_TO_SELFIE_IMAGE)
+      #             print('Selfie Image Loaded')
+      #             msg2 = 'Selfie Image Loaded'
+      #       else:
+      #             print ("The file " + PATH_TO_SELFIE_IMAGE + " does not exist.")
+      #             msg2 = 'Image file does not exist'
+      #       return selfie_img,PATH_TO_SELFIE_IMAGE,msg2
+      # except OSError as e:
+      #       print("Invalid image file!")
+      #       raise OSError("Invalid image file! :" + str(e))
+      # except IOError as e:
+      #       print("Invalid image file!")
+      #       raise IOError("Invalid image file! :" + str(e))
             
 def selfieimageproc(selfie_img):
       #DETECTING FACE FROM THE KTP AND CROPPING
